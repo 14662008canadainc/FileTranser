@@ -1,0 +1,42 @@
+version: "3.7"
+
+networks:
+  localnet:
+    external:
+      name: localnet
+
+services:
+  file-transfer:
+    env_file:
+      - .env
+    build: .
+    ports:
+      - 18443:12443
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+    volumes:
+      - ./files/downloads:/psi/files/downloads
+      - ./files/uploads:/psi/files/uploads
+    networks:
+      - localnet
+    restart: always
+
+  mysql:
+    build: src/main/docker/
+    command: --init-file /etc/mysql/init.sql
+    env_file:
+      - .env
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_ROOT_USER: root
+      MYSQL_ROOT_PASSWORD: 14662008canadainc@2023
+      MYSQL_DATABASE: file_db
+      TZ: Asia/Shanghai
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - localnet
+    restart: always
